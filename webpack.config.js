@@ -1,5 +1,5 @@
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: './browser/app.js',
   output: {
     path: __dirname + '/browser',
