@@ -1,99 +1,118 @@
-import {EventEmitter} from './event-emitter.js';
-export var whiteboard = new EventEmitter();
+ import {EventEmitter} from './event-emitter.js';  //EcmaS6
+ export var whiteboard = new EventEmitter();       //EcmaS6
 
-// const EventEmitter = require('./event-emitter.js');//common js
-// var whiteboard = new EventEmitter();//common js
-var color;
+  // var EventEmitter = require('./event-emitter.js');//common js
+  // var whiteboard = new EventEmitter();//common js
 
-//paleta de colores
-var colorElements = [].slice.call(document.querySelectorAll('.marker'));
+  // Ultimately, the color of our stroke;
+  var color;
 
-//agregar el método de selección
-colorElements.forEach(function (elem) {
-  elem.style.backgroundColor = el.id;
-  elem.addEventListener('click', function () {
-      color = this.id;
-      document.querySelector('.selected').classList.remove('selected');
-      this.classList.add('selected');
+  // The color selection elements on the DOM.
+  var colorElements = [].slice.call(document.querySelectorAll('.marker'));
+
+  colorElements.forEach(function (el) {
+
+    // Set the background color of this element
+    // to its id (purple, red, blue, etc).
+    el.style.backgroundColor = el.id;
+
+    // Attach a click handler that will set our color variable to
+    // the elements id, remove the selected class from all colors,
+    // and then add the selected class to the clicked color.
+    el.addEventListener('click', function () {
+        color = this.id;
+        document.querySelector('.selected').classList.remove('selected');
+        this.classList.add('selected');
+    });
+
   });
-});
 
-//crear lienzo
-var canvas = document.getElementById('paint');
-var ctx = canvas.getContext('2d')
+  var canvas = document.getElementById('paint');
 
-function resize() {
-  // des-escalar lienzo
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  // setear pixelado del dispositivo
-  var pixelRatio = window.devicePixelRatio || 1;
-  // setear ancho y largo del lienzo
-  var w = canvas.clientWidth * pixelRatio,
-      h = canvas.clientHeight * pixelRatio;
-  if (w !== canvas.width || h !== canvas.height) {
-    // Guardar el contenido para que no se elimine al cambiar tamaño del lienzo
-    var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    canvas.width = w; canvas.height = h;
-    //luego, restablecerlo:
-    ctx.putImageData(imgData, 0, 0)
-  } 
-  // Escalar las coordinadas internas del sistema de acuerdo al pixelado del dispositivo
-  // para asegurar que 1 pixel del lienzo equivale a 1 pixel css, aunque nuestro contenido
-  // sea más grande
-  ctx.scale(pixelRatio, pixelRatio);
+  var ctx = canvas.getContext('2d')
 
-  ctx.lineWidth = 5
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-}
-resize();
+  function resize() {
+    // Unscale the canvas (if it was previously scaled)
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-window.addEventListener('resize', resize);
-var currentMousePosition = { x: 0, y: 0 };
-var lastMousePosition = { x: 0, y: 0 };
+    // The device pixel ratio is the multiplier between CSS pixels
+    // and device pixels
+    var pixelRatio = window.devicePixelRatio || 1;
 
-var drawing = false;
+    // Allocate backing store large enough to give us a 1:1 device pixel
+    // to canvas pixel ratio.
+    var w = canvas.clientWidth * pixelRatio,
+        h = canvas.clientHeight * pixelRatio;
+    if (w !== canvas.width || h !== canvas.height) {
+      // Resizing the canvas destroys the current content.
+      // So, save it...
+      var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
-// evento que indica que se está dibujando
-canvas.addEventListener('mousedown', function (e) {
-  drawing = true;
-  currentMousePosition.x = e.pageX - this.offsetLeft;
-  currentMousePosition.y = e.pageY - this.offsetTop;
-});
+      canvas.width = w; canvas.height = h;
 
-// evento que indica dejar de dibujar
-canvas.addEventListener('mouseup', function () {
-  drawing = false;
-});
+      // ...then restore it.
+      ctx.putImageData(imgData, 0, 0)
+    }
 
-// listener que trackea el movimiento del mouse
-canvas.addEventListener('mousemove', function (e) {
-  if (!drawing) return;
+    // Scale the canvas' internal coordinate system by the device pixel
+    // ratio to ensure that 1 canvas unit = 1 css pixel, even though our
+    // backing store is larger.
+    ctx.scale(pixelRatio, pixelRatio);
 
-  lastMousePosition.x = currentMousePosition.x;
-  lastMousePosition.y = currentMousePosition.y;
-
-  currentMousePosition.x = e.pageX - this.offsetLeft;
-  currentMousePosition.y = e.pageY - this.offsetTop;
-
-  whiteboard.draw(lastMousePosition, currentMousePosition, color, true);
-});
-
-
-whiteboard.draw = function (start, end, strokeColor, shouldBroadcast) {
-  // dibuja una línea entre la posición inicial y final del color indicado
-  ctx.beginPath();
-  ctx.strokeStyle = strokeColor || 'black';
-  ctx.moveTo(start.x, start.y);
-  ctx.lineTo(end.x, end.y);
-  ctx.closePath();
-  ctx.stroke();
-
-  // emitir evento sólo si el shouldBroadcast es true
-  if (shouldBroadcast) {
-    whiteboard.emit('draw', start, end, strokeColor);
+    ctx.lineWidth = 5
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
   }
 
-};
-;
-// module.exports = whiteboard;
+  resize();
+  window.addEventListener('resize', resize);
+
+  var currentMousePosition = { x: 0, y: 0 };
+  var lastMousePosition = { x: 0, y: 0 };
+
+  var drawing = false;
+
+  canvas.addEventListener('mousedown', function (e) {
+    drawing = true;
+    currentMousePosition.x = e.pageX - this.offsetLeft;
+    currentMousePosition.y = e.pageY - this.offsetTop;
+  });
+
+  canvas.addEventListener('mouseup', function () {
+    drawing = false;
+  });
+
+  canvas.addEventListener('mousemove', function (e) {
+
+    if (!drawing) return;
+
+    lastMousePosition.x = currentMousePosition.x;
+    lastMousePosition.y = currentMousePosition.y;
+
+    currentMousePosition.x = e.pageX - this.offsetLeft;
+    currentMousePosition.y = e.pageY - this.offsetTop;
+
+    whiteboard.draw(lastMousePosition, currentMousePosition, color, true);
+
+  });
+
+  whiteboard.draw = function (start, end, strokeColor, shouldBroadcast) {
+
+    // Draw the line between the start and end positions
+    // that is colored with the given color.
+    ctx.beginPath();
+    ctx.strokeStyle = strokeColor || 'black';
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.closePath();
+    ctx.stroke();
+
+    // If shouldBroadcast is truthy, we will emit a draw event to listeners
+    // with the start, end and color data.
+    if (shouldBroadcast) {
+      whiteboard.emit('draw', start, end, strokeColor);
+    }
+
+  };
+
+module.exports = whiteboard;//common.js

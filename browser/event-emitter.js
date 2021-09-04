@@ -1,32 +1,47 @@
-function EventEmitter () {
-  this.subscribers = {};
-}
+ export   function EventEmitter () {       //EcmaS6
+   this.subscribers = {};                  //EcmaS6
+ }                                         //EcmaS6
 
-// Para usar instanciándolo:
-// instancia.on (evento, función)
-EventEmitter.prototype.on = function (eventName, eventListener) {
-  if (!this.subscribers[eventName]) {
-      this.subscribers[eventName] = [];
-  }
-  this.subscribers[eventName].push(eventListener);
-};
+  // function EventEmitter () {
+  //   this.subscribers = {};
+  // } //common js
 
-// uso: instanciaEE.emit('codigo de evento', arg1, arg2, ... , argN)
+
+
+  // To be used like:
+  // instanceOfEE.on('touchdown', cheerFn);
+  EventEmitter.prototype.on = function (eventName, eventListener) {
+
+    // If this instance's subscribers object does not yet
+    // have the key matching the given event name, create the
+    // key and assign the value of an empty array.
+    if (!this.subscribers[eventName]) {
+        this.subscribers[eventName] = [];
+    }
+
+    // Push the given listener function into the array
+    // located on the instance's subscribers object.
+    this.subscribers[eventName].push(eventListener);
+
+  };
+
+  // To be used like:
+  // instanceOfEE.emit('codec', 'Hey Snake, Otacon is calling!');
   EventEmitter.prototype.emit = function (eventName) {
-    //sin código de evento, no devuelve nada
+
+    // If there are no subscribers to this event name, why even?
     if (!this.subscribers[eventName]) {
         return;
     }
 
-    // sino, guardar el resto de los argumentos para usarlos en la función
+    // Grab the remaining arguments to our emit function.
     var remainingArgs = [].slice.call(arguments, 1);
 
-    // para cada evento, llamarlo con los argumentos
+    // For each subscriber, call it with our arguments.
     this.subscribers[eventName].forEach(function (listener) {
         listener.apply(null, remainingArgs);
     });
 
   };
 
-//  module.exports = EventEmitter;
-export default EventEmitter
+//  module.exports = EventEmitter;//common.js

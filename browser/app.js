@@ -1,7 +1,8 @@
-  import io from 'socket.io-client'
-  import { whiteboard } from './whiteboard.js';
-  // var io = require ('socket.io-client');
-  // var whiteboard = require  ('./whiteboard.js');
+ import {whiteboard} from './whiteboard.js'; //EcmaS6
+ import io from 'socket.io-client';          //EcmaS6
+
+  // var io = require ('socket.io-client');        //common js
+  // var whiteboard = require  ('./whiteboard.js');//common js
 
   var socket = io(window.location.origin);
 
