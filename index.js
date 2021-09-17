@@ -16,8 +16,10 @@ var inMemoryDrawHistory = [];
 
 const port = process.env.PORT || 1337;
 
+console.log('port:', port)
+
 server.listen(port, function () {
-  console.log(`The server is listening on port ${port}!`);
+  console.log('The server is listening on port 3000!');
 });
 
 app.use(express.static(path.join(__dirname, 'browser')));
@@ -44,4 +46,3 @@ io.on('connection', function (socket) {
     console.log('Goodbye, ', socket.id, ' :(');
   });
 });
-
